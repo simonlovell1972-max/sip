@@ -44,7 +44,7 @@ if uploaded_file:
             try:
                 with st.spinner(f"Generating GPT insight for {col}..."):
                     response = client.chat.completions.create(
-                        model="gpt-4",
+                    model="gpt-3.5-turbo",
                         messages=[
                             {"role": "user", "content": prompt}
                         ]
