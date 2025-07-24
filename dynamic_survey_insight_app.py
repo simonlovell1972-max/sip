@@ -31,18 +31,25 @@ if uploaded_file:
             st.pyplot(fig)
 
     st.subheader("🧠 GPT Insight Summary (Open-Ended Questions)")
-    openai_api_key = st.text_input("Enter your OpenAI API Key", type="password")
-    if openai_api_key:
-        openai.api_key = openai_api_key
-        for col in open_ended_cols:
-            st.markdown(f"**{col}**")
-            text = "\n".join(df[col].dropna().astype(str).tolist())
-            prompt = f"Summarise the following customer comments and identify key themes:\n{text[:4000]}"
-            try:
-                with st.spinner(f"Generating GPT insight for {col}..."):
-                    response = openai.ChatCompletion.create(
-                        model="gpt-4",
-                        messages=[{"role": "user", "content": prompt}]
+    from openai import OpenAI  # NEW IMPORT ABOVE — don't forget to add it
+
+if openai_api_key:
+    client = OpenAI(api_key=openai_api_key)
+
+    for col in open_ended_cols:
+        st.markdown(f"**{col}**")
+        text = "\n".join(df[col].dropna().astype(str).tolist())
+        prompt = f"Summarise the following customer comments and identify key themes:\n{text[:4000]}"
+        try:
+            with st.spinner(f"Generating GPT insight for {col}..."):
+                response = client.chat.completions.create(
+                    model="gpt-4",
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                st.success("Insight generated:")
+                st.write(response.choices[0].message.content)
+        except Exception as e:
+            st.error(f"Error: {e}")
                     )
                     st.success("Insight generated:")
                     st.write(response["choices"][0]["message"]["content"])
